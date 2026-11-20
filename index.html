@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none';img-src data:;style-src 'unsafe-inline' https://fonts.googleapis.com;font-src https://fonts.gstatic.com;script-src 'unsafe-inline'">
+<title>Cobroactivo · Expediente #447</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--desk:#0a1b33;--navy:#0a1b33;--manila:#e8eefa;--paper:#fff;--ink:#0f1b2d;--red:#d92d3a;--string:#2f6bff;--brass:#38bdf8;--mute:#5b6b82;--acc:#1d4ed8;--line:#dbe4f0;--bg:#eef3fa}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+body{background:radial-gradient(900px 500px at 85% -5%,#cfe0ff,transparent 65%),var(--bg) fixed;color:var(--ink);font:15px/1.6 'IBM Plex Sans',system-ui,sans-serif;min-height:100vh}
+h1,h2,h3,h4{line-height:1.15;letter-spacing:-.02em;font-weight:700}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-align:inherit}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.fila b,.datos b,.cuenta,.tag,.nodo,.l,.tabla,.hud,.susurro,.cifra pre,#notas{font-family:'IBM Plex Mono',ui-monospace,monospace}
+@keyframes in{from{opacity:0;transform:translateY(18px)}}
+
+/* Escena */
+#escena{position:fixed;inset:0;z-index:50;background:#050b16;display:grid;place-items:center;touch-action:none;overflow:hidden}
+#lluvia{position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none}
+.oscuro{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle var(--r,240px) at var(--x,50%) var(--y,35%),rgba(150,200,255,.1) 0,transparent 32%,rgba(3,8,18,.6) 60%,rgba(3,8,18,.99) 100%);animation:trueno 11s infinite}
+@keyframes trueno{0%,92%,100%{opacity:1}93%{opacity:.2}94%{opacity:.85}95.5%{opacity:.1}}
+.pista{position:absolute;z-index:1;width:130px;transform:translate(-50%,-50%);text-align:center;color:#cfe0ff;font-size:12px;line-height:1.3}
+.pista i{display:grid;place-items:center;width:40px;height:40px;margin:0 auto 6px;border-radius:50%;background:#38bdf8;color:#04121f;font:700 17px 'IBM Plex Mono',monospace}
+.pista.ok{z-index:4;filter:drop-shadow(0 0 14px #38bdf8)}
+.cubierta{position:relative;z-index:3;width:min(420px,90vw);padding:44px 32px 30px;overflow:hidden;background:var(--card);border-radius:16px;box-shadow:0 30px 90px #000a;animation:in .9s both}
+.cubierta::before{content:"";position:absolute;inset:0 0 auto;height:8px;background:linear-gradient(90deg,#1d4ed8,#38bdf8)}
+.cubierta h1{font-size:clamp(38px,11vw,54px);color:var(--navy)}
+.cubierta .sub{margin:6px 0 20px;color:var(--mute)}
+.fila{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}.fila span{color:var(--mute)}
+.sello{position:absolute;right:18px;top:18px;transform:rotate(6deg);padding:1px 9px;border:2px solid var(--red);border-radius:4px;color:var(--red);font:700 11px 'IBM Plex Mono',monospace;letter-spacing:.08em}
+.abrir{display:block;margin:24px auto 0;padding:13px 28px;border-radius:10px;background:linear-gradient(135deg,#1d4ed8,#2f6bff);color:#fff;font-weight:600;font-size:16px;text-align:center;box-shadow:0 10px 26px #1d4ed855;transition:.15s}
+.abrir:hover{transform:translateY(-2px);box-shadow:0 14px 30px #1d4ed888}
+.hud{position:absolute;top:18px;right:22px;z-index:5;color:#38bdf8;font-size:13px}
+.susurro{position:absolute;bottom:20px;z-index:5;min-height:22px;padding:0 20px;color:#93b4e6;font-size:13px;text-align:center}
+
+/* App */
+.app{display:none;grid-template-columns:240px minmax(0,1fr) minmax(340px,430px);gap:20px;max-width:1700px;margin:auto;padding:20px;align-items:start}
+.app.on{display:grid}
+.barra{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:14px 22px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px #0a1b3314;color:var(--mute);font-size:13px}
+.barra h1{font-size:20px;color:var(--navy)}
+.barra h1::before{content:"";display:inline-block;width:14px;height:14px;margin-right:10px;border-radius:4px;background:linear-gradient(135deg,#1d4ed8,#38bdf8)}
+nav{position:sticky;top:20px;display:grid;gap:6px;padding:16px;background:var(--navy);border-radius:16px;color:#b7c7e6;box-shadow:0 18px 40px #0a1b3340}
+.tab{padding:10px 12px;border-radius:10px;font-size:14px;color:#b7c7e6;transition:.2s}
+.tab:hover{background:#ffffff14;color:#fff}
+.tab[aria-current=true]{background:var(--acc);color:#fff;font-weight:600;box-shadow:0 6px 16px #1d4ed866}
+.tab.hecho::after{content:" ✓";color:#38bdf8}
+nav label{margin-top:12px;font-size:12px;color:#8aa3cc}
+#notas{width:100%;height:190px;padding:10px 12px;border:1px solid #24406a;border-radius:10px;background:#0f2644;color:#dbe7ff;font-size:13px;line-height:1.6;resize:vertical}
+#reset{margin-top:6px;font-size:12px;color:#6f89b3}
+.prog{margin-bottom:8px;font-size:12px;color:#8aa3cc}.prog b{color:#fff}.prog div{height:6px;margin-top:6px;border-radius:9px;background:#ffffff1f}
+.prog i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#2f6bff,#38bdf8);transition:width .6s}
+
+.dossier{position:relative;min-height:70vh;padding:32px clamp(20px,4vw,44px) 44px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-top:6px solid var(--acc);border-radius:16px;box-shadow:0 18px 50px #0a1b3322;animation:in .5s both}
+.dossier[data-t="448"]{--acc:#059669}
+.dossier[data-t="449"]{--paper:#0b1626;--ink:#e6eefc;--mute:#8aa3cc;--line:#1f3555;--acc:#38bdf8}
+.dossier[data-t="450"]{--acc:#7c3aed}
+.dossier[data-t="451"]{--acc:#0891b2}
+.dossier h2{font-size:30px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.dossier h3{font-size:20px;margin:30px 0 4px}
+.informe{white-space:pre-wrap;max-width:70ch;margin-bottom:8px;padding:16px 18px;border-left:4px solid var(--acc);border-radius:0 10px 10px 0;background:color-mix(in srgb,var(--acc) 7%,var(--paper));font:13.5px/1.7 'IBM Plex Mono',monospace}
+.nota{color:var(--mute);font-size:13px;margin-bottom:14px}
+.cuenta{margin-left:10px;padding:1px 10px;border-radius:999px;background:color-mix(in srgb,var(--acc) 14%,var(--paper));color:var(--acc);font:600 12px 'IBM Plex Mono',monospace;vertical-align:middle}
+.datos{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:0 0 8px}
+.datos div{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card);box-shadow:0 4px 14px #0a1b3310}
+.datos small{display:block;color:var(--mute);font-size:12px}.datos b{font-size:17px;color:var(--acc)}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.carta{position:relative;display:block;width:100%;min-height:96px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--card);box-shadow:0 4px 14px #0a1b3310;transition:.2s}
+.carta:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 10px 24px #1d4ed82a}
+.carta h4{font-size:16px}.carta small{display:block;color:var(--mute);font-size:12.5px}
+.reveal{display:none;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
+.carta[aria-pressed=true]{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--card))}
+.carta[aria-pressed=true] .reveal{display:block}
+.carta[aria-pressed=true]::after{content:attr(data-sello);position:absolute;top:-9px;right:12px;padding:1px 9px;border-radius:999px;background:var(--acc);color:#fff;font:600 10px 'IBM Plex Mono',monospace;text-transform:uppercase}
+.ini{display:grid;place-items:center;width:46px;height:46px;margin-bottom:8px;border-radius:50%;background:linear-gradient(135deg,#0a1b33,#1d4ed8);color:#fff;font:700 15px 'IBM Plex Sans',sans-serif}
+.linea{position:relative;height:4px;margin:70px 14px 80px;border-radius:4px;background:#cfdcf0}
+.linea::before,.linea::after{position:absolute;top:10px;font:11px 'IBM Plex Mono',monospace;color:var(--mute)}.linea::before{content:'10:00';left:0}.linea::after{content:'12:30';right:0}
+.banda{position:absolute;top:-5px;height:14px;border-radius:4px;background:#2f6bff;opacity:.35}
+.hito{position:absolute;top:-8px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--card);border:3px solid var(--acc);animation:in .5s both}
+.hito span{position:absolute;top:26px;left:50%;width:120px;margin-left:-60px;text-align:center;font-size:12px;line-height:1.25}
+.hito.alt span{top:-58px}.hito b{display:block;font:600 13px 'IBM Plex Mono',monospace;color:var(--acc)}
+.ruta{margin:10px 0 6px;padding:14px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(var(--soft),var(--card))}.ruta svg{display:block;width:100%}
+.nd rect{fill:var(--card);stroke:#1d4ed8;stroke-width:1.5}.nd text{font:600 10.5px 'IBM Plex Mono',monospace;fill:var(--ink)}
+.nd.fin rect{fill:#1d4ed8}.nd.fin text{fill:#fff}.nd.off rect{fill:var(--soft);stroke:#9fb0c8;stroke-dasharray:4 3}.nd.off text{fill:#9fb0c8}
+.fl{stroke:#2f6bff;stroke-width:2;stroke-dasharray:5 4;animation:flujo 1s linear infinite}.fl.off{stroke:#cbd5e1;animation:none}
+.ruta svg>text{font:600 10px 'IBM Plex Mono',monospace;fill:#d92d3a}
+@keyframes flujo{to{stroke-dashoffset:-9}}
+
+.cifra{margin-top:26px;padding:26px;background:var(--navy);color:#dbe7ff;border-radius:14px}
+.cifra pre{margin:14px 0;font-size:19px;line-height:1.7;white-space:pre-wrap;letter-spacing:.06em;color:#93c5fd}
+.cifra input{width:100%;accent-color:#7c3aed}.cifra p{margin-top:12px;min-height:26px}.cifra .ok{color:#4ade80}
+.acusa{margin-top:36px;padding:28px;text-align:center;background:var(--navy);color:#e6eefc;border-radius:14px}
+.acusa h3{margin-top:0;color:#38bdf8}
+select{width:100%;max-width:320px;margin:12px 6px 0;padding:11px;border:1px solid #24406a;border-radius:10px;background:#0f2644;color:#fff;font:inherit}
+#res{min-height:34px;margin-top:18px;font-size:19px;font-weight:700}#res.ok{color:#4ade80}#res.mal{color:#fca5a5}
+.confesion{margin-top:16px;padding:18px;text-align:left;background:#0f2644;border:1px solid #24406a;border-left:4px solid var(--red);border-radius:10px;color:#e6eefc;font-size:14px}
+.cerrado{position:fixed;inset:0;z-index:90;display:grid;place-items:center;pointer-events:none;color:#1d4ed8;font:800 clamp(44px,12vw,140px) 'IBM Plex Sans',sans-serif;text-shadow:0 0 60px #fff,0 0 20px #fff;animation:sello 3.4s forwards}
+@keyframes sello{0%{opacity:0;transform:scale(2.2) rotate(-10deg)}12%{opacity:1;transform:scale(1) rotate(-6deg)}80%{opacity:1}100%{opacity:0}}
+.luz{position:fixed;inset:0;z-index:5;pointer-events:none;mix-blend-mode:soft-light;background:radial-gradient(circle 460px at var(--lx,50%) var(--ly,30%),rgba(140,180,255,.45),transparent 70%)}
+
+/* Auditoría */
+.aut{display:grid;grid-template-columns:minmax(170px,240px) 1fr;gap:26px;margin-top:18px}
+.camilla{align-self:start;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px #0a1b331a}
+.cw{position:relative}.cw svg{display:block;width:100%}
+.punto{position:absolute;width:24px;height:24px;margin:-12px;border-radius:50%;border:2px solid var(--acc);background:#05966933}
+.punto::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--acc);animation:onda 1.8s infinite}
+.punto[aria-pressed=true]{background:var(--acc)}.punto[aria-pressed=true]::after{animation:none;opacity:0}
+@keyframes onda{from{transform:scale(.6);opacity:1}to{transform:scale(1.7);opacity:0}}
+.tag{display:inline-block;padding:5px 14px;border-radius:999px;background:color-mix(in srgb,var(--acc) 14%,var(--card));color:var(--acc);font-size:12px;font-weight:600}
+.hall{display:grid;gap:10px;margin-top:12px}.hall div{padding:12px 14px;border-left:4px solid var(--red);border-radius:0 10px 10px 0;background:color-mix(in srgb,var(--red) 8%,var(--card));animation:in .4s both}
+.hall b{display:block;font-size:15px}
+.tabla{width:100%;margin-top:18px;border-collapse:collapse;font-size:13px}.tabla td{padding:8px 10px;border-bottom:1px solid var(--line)}.tabla td:first-child{color:var(--mute)}
+
+/* Sala de entrevistas */
+.sala{position:relative;overflow:hidden;margin-top:18px;padding:22px 90px 22px 22px;border:1px solid #1f3555;border-radius:14px;background:radial-gradient(ellipse at 40% 0,#16315a,#050b16 75%)}
+.sala h3{margin-top:60px}
+.lampara{position:absolute;top:0;left:40%;transform-origin:50% 0;animation:bal 5s ease-in-out infinite alternate;pointer-events:none}
+.lampara::before{content:"";position:absolute;left:-170px;top:6px;width:340px;height:420px;background:linear-gradient(#b4d7ff44,transparent 90%);clip-path:polygon(42% 0,58% 0,100% 100%,0 100%)}
+.lampara::after{content:"";position:absolute;left:-15px;top:-2px;width:30px;height:15px;border-radius:0 0 15px 15px;background:#cbd5e1;box-shadow:0 6px 24px 8px #7fb2ff88}
+@keyframes bal{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.espejo{position:absolute;right:0;top:0;bottom:0;width:72px;border-left:6px solid #1f3555;background:linear-gradient(120deg,#16315a,#081524)}
+.espejo::after{content:"";position:absolute;right:18px;bottom:0;width:36px;height:120px;border-radius:18px 18px 0 0;background:#000;opacity:0;animation:sombra 13s infinite}
+@keyframes sombra{0%,70%,100%{opacity:0}74%,80%{opacity:.85}}
+.grab{position:absolute;top:14px;left:22px;z-index:2;display:flex;gap:10px;align-items:center;font-size:12px;color:#8aa3cc}
+.rueda{width:24px;height:24px;border:4px double #8aa3cc;border-radius:50%;animation:giro 2s linear infinite}
+@keyframes giro{to{transform:rotate(360deg)}}
+.rec{color:#ef4444;animation:parp 1.2s steps(2) infinite}@keyframes parp{50%{opacity:0}}
+.sin{position:relative;z-index:1}
+.fichas{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.fs{display:flex;gap:10px;align-items:center;padding:8px 14px 8px 8px;border:1px solid #24406a;border-radius:12px;background:#0f2644;transition:.2s}
+.fs .ini{width:38px;height:38px;margin:0;font-size:13px}
+.fs[aria-pressed=true]{border-color:#38bdf8;box-shadow:0 0 18px #38bdf866}
+.fs.roto::after{content:"habló";margin-left:6px;padding:0 8px;border-radius:999px;background:#d92d3a;color:#fff;font-size:11px}
+.mon{display:flex;gap:16px;align-items:center;margin:8px 0;padding:8px 12px;border:1px solid #12406a;border-radius:10px;background:#04101f}
+.mon svg{flex:1;height:60px}.nvw{width:130px;font-size:12px;color:#38bdf8}.nvw span{display:block;height:8px;margin-top:4px;border-radius:9px;background:#0b2238}.nvw i{display:block;height:100%;width:15%;border-radius:9px;background:#38bdf8;transition:width .2s}
+#cinta{min-height:150px;max-height:290px;overflow:auto;margin:12px 0;padding:14px;border-left:3px solid #38bdf8;border-radius:0 10px 10px 0;background:#050b16aa;font-size:14px}
+.l{margin:6px 0}.l.d b{color:#38bdf8}.l.s b{color:#fca5a5}.l.sis{color:#8aa3cc;font-style:italic}
+.l.mentira span{text-decoration:underline wavy #ef4444;text-underline-offset:4px}
+.sin .abrir{margin:0;background:linear-gradient(135deg,#d92d3a,#ef4444);box-shadow:0 10px 26px #d92d3a55}
+.sobre{margin-top:18px;padding:12px 16px;border-radius:10px;background:var(--card);color:#0f1b2d}.sobre summary{cursor:pointer;font-weight:600}
+
+/* Forense digital */
+.lab{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-top:16px}
+.mu{display:grid;gap:10px;padding:16px;border:1px solid #1f3555;border-radius:14px;background:var(--navy);color:#dbe7ff}
+.vis{position:relative;width:120px;height:120px;margin:auto;overflow:hidden;border-radius:50%;border:6px solid #16315a;box-shadow:inset 0 0 24px #000,0 0 0 2px #2f6bff}
+.vis::after{content:"";position:absolute;left:0;right:0;top:-6px;height:3px;background:#38bdf8;box-shadow:0 0 14px 4px #38bdf888;opacity:0}
+.mu.scan .vis::after{opacity:1;animation:barrido 1.1s linear}
+@keyframes barrido{to{top:122px}}
+.i-bo{background:repeating-linear-gradient(0deg,#60a5fa 0 4px,#0f2644 4px 9px)}
+.i-ta{background:repeating-radial-gradient(ellipse at 50% 60%,#93c5fd 0 3px,#0f2644 3px 7px)}
+.i-ar{background:conic-gradient(#38bdf8 0 25%,#0f2644 0 50%,#38bdf8 0 75%,#0f2644 0)}
+.i-sa{background:radial-gradient(circle at 45% 50%,#ef4444 0 28%,#7f1d1d 38%,#0f2644 70%)}
+.mu h4{font-size:16px}.mu .r{font-size:13px;line-height:1.5}
+.mu button{padding:7px;border:1px solid #38bdf8;border-radius:8px;color:#38bdf8;text-align:center}
+.mu small{display:flex;justify-content:space-between;font-size:12px}
+.bar{height:8px;margin:2px 0 6px;border-radius:9px;background:#16315a}.bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#2f6bff,#38bdf8)}
+.concl{margin-top:20px;padding:18px 20px;border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:10px;background:color-mix(in srgb,var(--acc) 7%,var(--card))}
+.tri{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.tri div{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:13px}
+.tri small{display:block;color:var(--red);font:600 11px 'IBM Plex Mono',monospace;text-transform:uppercase}
+
+/* Tablero de relaciones */
+.corcho{position:sticky;top:20px;height:calc(100vh - 40px);min-height:520px;display:flex;flex-direction:column;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px #0a1b3322}
+.barra-c{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;background:var(--navy);color:#8aa3cc;font-size:13px}
+.barra-c button{padding:4px 12px;border:1px solid #2f4a78;border-radius:999px;color:#b7c7e6}
+.barra-c button[aria-pressed=true]{background:#2f6bff;border-color:#2f6bff;color:#fff}
+#conteo{margin-left:auto;font-family:'IBM Plex Mono',monospace}
+#area{position:relative;flex:1;overflow:hidden;background:var(--soft) radial-gradient(var(--dots) 1px,transparent 1.2px) 0 0/22px 22px}
+#hilos{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#hilos path{fill:none;stroke:#2f6bff;stroke-width:2.2;stroke-dasharray:6 5;animation:flujo 1s linear infinite;pointer-events:stroke;cursor:pointer}
+.nodo{position:absolute;z-index:2;max-width:140px;padding:9px 12px;border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:10px;background:var(--card);box-shadow:0 6px 16px #0a1b3322;font-size:12px;font-weight:600;line-height:1.25;cursor:grab;user-select:none;touch-action:none}
+.nodo.sel{outline:3px solid #38bdf8}
+.t-sus{border-left-color:#d92d3a}.t-evi{border-left-color:#f59e0b}.t-lug{border-left-color:#1d4ed8}
+#vacio{position:absolute;inset:0;display:grid;place-items:center;padding:30px;text-align:center;color:var(--mute);font-size:14px;pointer-events:none}
+
+@media(max-width:1100px){.app{grid-template-columns:1fr}nav{position:static;grid-template-columns:repeat(2,1fr)}nav label,#notas,#reset,.prog{grid-column:1/-1}.corcho{position:relative;top:0;height:560px}}
+@media(max-width:700px){.aut{grid-template-columns:1fr}.sala{padding-right:22px}.espejo{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<style id="mejoras">
+:root{--logo:url(data:image/png;base64,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);--card:#fff;--soft:#f5f8fe;--dots:#c5d3ea}
+html[data-tema=oscuro]{--bg:#070d18;--paper:#0e1a2e;--ink:#e6eefc;--line:#1f3555;--mute:#8aa3cc;--card:#10203a;--soft:#0a1425;--dots:#1c3253}
+html[data-tema=oscuro] body{background:radial-gradient(900px 500px at 85% -5%,#10294d,transparent 65%),var(--bg) fixed}
+html[data-tema=oscuro] .dossier[data-t="447"]{--acc:#60a5fa}html[data-tema=oscuro] .dossier[data-t="448"]{--acc:#34d399}html[data-tema=oscuro] .dossier[data-t="450"]{--acc:#a78bfa}html[data-tema=oscuro] .dossier[data-t="451"]{--acc:#22d3ee}
+.sobre,.camilla,.cubierta{background:#fff!important;color:#0f1b2d}.camilla{color:#0f1b2d}
+.logo{width:200px;height:50px;padding:6px 12px;border-radius:10px;background:#fff var(--logo) no-repeat center/contain;background-origin:content-box}
+.logo-g{width:100%;height:84px;margin-bottom:8px;padding:0;background-position:left center}
+.marca{display:flex;align-items:center;gap:16px}.caso{display:grid;line-height:1.25;padding-left:16px;border-left:1px solid var(--line)}.caso b{font-size:15px;color:var(--ink)}.caso small{color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{padding:5px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font:600 12px 'IBM Plex Mono',monospace}
+button.chip{cursor:pointer;transition:.2s}button.chip:hover{border-color:var(--acc);color:var(--acc)}
+.anillo{position:relative;width:42px;height:42px}.anillo svg{width:100%;transform:rotate(-90deg)}.anillo circle{fill:none;stroke-width:3.5}.anillo .bg{stroke:var(--line)}
+#ring{stroke:#2f6bff;stroke-linecap:round;stroke-dasharray:94.25;stroke-dashoffset:94.25;transition:stroke-dashoffset .6s}
+.anillo b{position:absolute;inset:0;display:grid;place-items:center;font:600 11px 'IBM Plex Mono',monospace;color:var(--ink)}
+.tab{display:flex;align-items:center;gap:10px}.tab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.tab kbd{margin-left:auto;font:11px 'IBM Plex Mono',monospace;opacity:.5}
+#escena{background:#050b16;background-image:linear-gradient(#0d2040 1px,transparent 1px),linear-gradient(90deg,#0d2040 1px,transparent 1px);background-size:44px 44px}
+.oscuro{animation:none;background:radial-gradient(circle var(--r,210px) at var(--x,50%) var(--y,35%),transparent 0,transparent 78%,rgba(3,8,18,.6) 90%,rgba(3,8,18,.97) 100%)}
+.lente{position:absolute;z-index:2;left:var(--x,50%);top:var(--y,35%);width:calc(var(--r,210px)*2);height:calc(var(--r,210px)*2);transform:translate(-50%,-50%);border:2px solid #38bdf8;border-radius:50%;box-shadow:0 0 40px #38bdf866,inset 0 0 40px #38bdf822;pointer-events:none}
+.pista i{border-radius:8px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff}.pista.ok{filter:drop-shadow(0 0 14px #f97316)}
+.lampara{animation:none;transform:none}.lampara::after{left:-50px;width:100px;height:8px;border-radius:4px;background:#e6f1ff;box-shadow:0 6px 30px 10px #7fb2ff88}.espejo::after{display:none}
+.carta,.datos div,.tri div{background-image:radial-gradient(220px circle at var(--mx,-999px) var(--my,-999px),color-mix(in srgb,var(--acc) 16%,transparent),transparent 65%)}
+.rejilla>*{animation:in .5s both}.rejilla>:nth-child(2){animation-delay:.06s}.rejilla>:nth-child(3){animation-delay:.12s}.rejilla>:nth-child(4){animation-delay:.18s}.rejilla>:nth-child(5){animation-delay:.24s}.rejilla>:nth-child(6){animation-delay:.3s}
+.nodo{animation:pop .35s both}@keyframes pop{from{transform:scale(.6);opacity:0}}
+.nd{cursor:default}.nd[data-d]:not([data-d=""]){cursor:pointer}.nd:not(.off):hover rect{stroke:#38bdf8;filter:drop-shadow(0 4px 8px #2f6bff66)}
+#toast{position:fixed;left:50%;bottom:24px;z-index:80;transform:translate(-50%,20px);padding:10px 18px;border-radius:999px;background:var(--navy);color:#fff;font-size:13px;box-shadow:0 12px 30px #0006;opacity:0;pointer-events:none}
+#toast.v{animation:toast 2.6s both}@keyframes toast{0%{opacity:0;transform:translate(-50%,20px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+@media(max-width:700px){.logo{width:150px;height:42px}.caso{display:none}}
+
+.lluvia-b{position:fixed;inset:0;z-index:85;pointer-events:none}
+.cubierta{transition:transform .2s ease-out}
+.bil{fill:#1f9d63;stroke:#fff;stroke-width:.8}
+.datos div:nth-child(3){cursor:pointer}
+.hito::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--acc);animation:onda 2s infinite}
+.fajo{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;margin:16px 0 6px;perspective:900px}
+.bill{display:block;width:100%;aspect-ratio:2.2/1;padding:0;transition:transform .3s;transform:rotate(calc((var(--i) - 2.5)*1.4deg))}
+.bill:hover{transform:translateY(-8px) rotate(0)}
+.bill .in{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.3,1.3,.4,1)}
+.bill.on .in{transform:rotateY(180deg)}
+.fr,.rv{position:absolute;inset:0;overflow:hidden;border-radius:10px;backface-visibility:hidden;box-shadow:0 10px 24px #0a1b3340}
+.fr{color:#fff;border:2px solid #d6f5e4aa;background:repeating-radial-gradient(circle at 78% 50%,#ffffff22 0 2px,transparent 2px 7px),linear-gradient(120deg,#0f5a3a,#1f9d63 55%,#0f5a3a)}
+.bill:nth-child(3n) .fr{border-color:#cfe0ffaa;background:repeating-radial-gradient(circle at 78% 50%,#ffffff22 0 2px,transparent 2px 7px),linear-gradient(120deg,#12306b,#2f6bff 55%,#12306b)}
+.fr b{position:absolute;left:14px;top:8px;font:700 22px 'IBM Plex Mono',monospace}
+.fr em{position:absolute;right:14px;top:10px;font:600 10px 'IBM Plex Mono',monospace;font-style:normal}
+.fr small{position:absolute;left:14px;bottom:8px;font:600 8.5px 'IBM Plex Mono',monospace;letter-spacing:.06em;opacity:.85}
+.fr u{position:absolute;right:14px;bottom:8px;font:600 11px 'IBM Plex Mono',monospace;text-decoration:none}
+.ov{position:absolute;left:58%;top:50%;width:64px;height:64px;margin-top:-32px;border-radius:50%;border:2px solid #ffffff66;background:radial-gradient(circle,#ffffff55 0 38%,#ffffff22 40% 70%,transparent 72%)}
+.rv{transform:rotateY(180deg);padding:12px 16px;border:2px solid #d92d3a;background:#fff;color:#0f1b2d;font:12px/1.55 'IBM Plex Mono',monospace;text-align:left}
+.rv b{padding:0 8px;border-radius:4px;background:#d92d3a;color:#fff}
+.umbral{padding:18px 20px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.umbral input{width:100%;accent-color:var(--acc)}
+.medidor{position:relative;height:14px;margin:26px 0 12px;border-radius:9px;background:var(--line)}
+.medidor i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#34d399,#f59e0b);transition:width .15s}
+.medidor span{position:absolute;left:66.6%;top:-22px;transform:translateX(-50%);font:600 11px 'IBM Plex Mono',monospace;color:var(--red)}
+.medidor::after{content:"";position:absolute;left:66.6%;top:-5px;bottom:-5px;width:2px;background:var(--red)}
+.umbral.alto .medidor i{background:linear-gradient(90deg,#f59e0b,#d92d3a)}.umbral p{margin:0;font-weight:600}.umbral.alto p{color:var(--red)}
+@media(prefers-reduced-motion:reduce){.bil{display:none}}
+
+.pista{width:auto;display:grid;justify-items:center;gap:7px}
+.pista i{margin:0;animation:flota 3s ease-in-out infinite;animation-delay:calc(var(--k)*-.6s)}
+.pista span{padding:3px 11px;border-radius:999px;border:1px solid #1f3a66;background:#0a1b33d9;white-space:nowrap}
+.pista.ok span{border-color:#f97316;color:#fff}
+@keyframes flota{50%{transform:translateY(-6px)}}
+@media(max-width:700px){.cubierta{width:min(360px,88vw);padding:30px 22px 20px}.logo-g{height:56px}.fila{padding:5px 0}.cubierta .abrir{margin-top:14px}}
+
+#reset{margin-top:10px;padding:9px;border:1px solid #2f4a78;border-radius:10px;color:#b7c7e6;font-size:13px;text-align:center}#reset:hover{background:#ffffff14;color:#fff}
+dialog{margin:auto;max-width:380px;padding:26px;border:0;border-radius:16px;background:var(--card);color:var(--ink);box-shadow:0 30px 90px #000a}
+dialog::backdrop{background:#050b16b3;backdrop-filter:blur(4px)}dialog p{margin-top:8px;color:var(--mute)}
+dialog div{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+dialog button{padding:9px 18px;border:1px solid var(--line);border-radius:10px;font-weight:600}
+#si{border-color:#d92d3a;background:#d92d3a;color:#fff}
+.datos b{overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+
+<div id="escena">
+  <div class="hud" id="hud"></div>
+  <canvas id="lluvia"></canvas>
+  <div class="oscuro"></div><div class="lente"></div>
+  <div class="cubierta">
+    <div class="logo logo-g" role="img" aria-label="Cobroactivo · Salvamos Recursos"></div>
+    <p class="sub">Verificación de anomalías en medición.</p>
+    <div class="fila"><span>Orden de servicio</span><b>N.° 45871</b></div>
+    <div class="fila"><span>Fecha</span><b>15 de septiembre</b></div>
+    <div class="fila"><span>Gestor asignado</span><b>Andrés Ramírez</b></div>
+    <div class="fila"><span>Cliente visitado</span><b>Comercializadora El Progreso</b></div>
+    <div class="sello">CONFIDENCIAL</div>
+    <button class="abrir" id="abrir">Iniciar auditoría</button>
+  </div>
+  <p class="susurro" id="susurro">Mueve el cursor o el dedo: el escáner revela las anomalías de la oficina.</p>
+</div>
+
+<div class="app" id="app">
+  <header class="barra">
+    <div class="marca"><div class="logo" role="img" aria-label="Cobroactivo · Salvamos Recursos"></div><div class="caso"><b>Expediente <span id="exp">#447</span></b><small id="fecha"></small></div></div>
+    <div class="chips"><span class="chip" id="hud2"></span><span class="chip" id="chHil">0 hilos</span><button class="chip" id="reiniciar" aria-label="Reiniciar el caso">↻ Reiniciar</button><button class="chip" id="tema" aria-label="Cambiar entre tema claro y oscuro">Modo oscuro</button><div class="anillo" title="Progreso de la investigación"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="bg"/><circle id="ring" cx="18" cy="18" r="15"/></svg><b id="ringT">0</b></div></div>
+  </header>
+
+  <nav>
+    <div class="prog"><span>Investigación <b id="pct">0%</b></span><div><i id="barra"></i></div></div>
+    <div id="tabs" style="display:contents"></div>
+    <label for="notas">Libreta del auditor</label>
+    <textarea id="notas" placeholder="Anota importes, horas, sospechas…"></textarea>
+    <button id="reset">↻ Reiniciar caso</button>
+  </nav>
+
+  <main class="dossier" id="contenido"></main>
+
+  <aside class="corcho" aria-label="Tablero de conexiones">
+    <div class="barra-c">
+      <button data-m="conectar" aria-pressed="true">Conectar</button>
+      <button data-m="mover" aria-pressed="false">Mover</button>
+      <button id="limpiar">Cortar hilos</button>
+      <span id="conteo"></span>
+    </div>
+    <div id="area">
+      <svg id="hilos"></svg>
+      <p id="vacio">Inspecciona áreas, entrevista sospechosos y analiza evidencias: aparecerán aquí para unirlas con hilo rojo.</p>
+    </div>
+  </aside>
+</div>
+
+<dialog id="dlg"><h3>¿Reiniciar el caso?</h3><p>Se borrarán pistas, hilos, notas y progreso, y volverás a la portada.</p><div><button id="no">Cancelar</button><button id="si">Reiniciar</button></div></dialog>
+<div class="luz" id="luz" hidden></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const P=[['Orden de Trabajo',22,30,'¿Encuentran algo anormal hasta este punto?'],['Registro Fotográfico',76,44,'¿Qué hallazgos técnicos evidencian las fotografías?'],['Informe Registrado por el Gestor',18,70,'¿Existe coherencia entre las fotografías y el informe?'],['Mensaje de WhatsApp del Cliente',86,66,'¿Qué interpretación le darían a esta conversación?'],['Declaración de un Compañero',60,84,'¿Qué información nueva aporta este testimonio?']];
+const D={
+'447':{titulo:'Orden de Trabajo',fecha:'15 de septiembre',texto:'Orden de servicio N.° 45871\nFecha: 15 de septiembre\nGestor asignado: Andrés Ramírez\nCliente visitado: Comercializadora El Progreso\nMotivo: Verificación de anomalías en medición.\nHora de inicio: 10:15 a.m.\nHora de cierre: 10:40 a.m.\n\nPregunta para los participantes:\n¿Encuentran algo anormal hasta este punto?',
+habitaciones:[['Estado Bancario (Pista Clave)','Se encuentra durante la investigación un movimiento bancario:'],['Consignación: $300.000','Fecha: 15 de septiembre'],['Hora: 12:08 p.m.','El consignante corresponde al propietario del establecimiento visitado.'],['Hora de inicio: 10:15 a.m.','Hora de cierre: 10:40 a.m.'],['Motivo','Verificación de anomalías en medición.'],['Cliente visitado','Comercializadora El Progreso']].map(([nombre,pista])=>({nombre,pista})),
+sospechosos:[{id:'pierce',ini:'AR',nombre:'Andrés Ramírez',rol:'Gestor asignado',coartada:'Hora de llegada: 10:15 a.m.',motivo:'Hora de salida: 11:35 a.m.',secreto:'Sin embargo, el informe indica una duración de 25 minutos.'},{id:'velasco',ini:'CL',nombre:'Cliente',rol:'Cliente visitado: Comercializadora El Progreso',coartada:'"Muchas gracias por la ayuda. Menos mal pudimos solucionar el tema."',motivo:'¿Qué interpretación le darían a esta conversación?',secreto:'¿Es suficiente para determinar una falta?'},{id:'ortega',ini:'PR',nombre:'Propietario del establecimiento visitado',rol:'Consignante',coartada:'Consignación: $300.000',motivo:'Fecha: 15 de septiembre',secreto:'Hora: 12:08 p.m.'},{id:'thompson',ini:'UC',nombre:'Un compañero',rol:'Un compañero manifiesta:',coartada:'Pregunta para los participantes:',motivo:'¿Qué información nueva aporta este testimonio?',secreto:'Pista 5: Declaración de un Compañero'}],
+evidencias:[{id:'ev3',titulo:'Informe Registrado por el Gestor',texto:'Observaciones registradas por Andrés: "Durante la visita no se evidencian irregularidades en el sistema de medición. Las condiciones observadas son normales y no requieren acciones adicionales."'},{id:'ev1',titulo:'Mensaje de WhatsApp del Cliente',texto:'Cliente: "Muchas gracias por la ayuda. Menos mal pudimos solucionar el tema." Andrés: "Quedamos atentos."'},{id:'ev4',titulo:'Registro GPS',texto:'El sistema evidencia que Andrés permaneció en el establecimiento: Hora de llegada: 10:15 a.m. Hora de salida: 11:35 a.m. Sin embargo, el informe indica una duración de 25 minutos.'},{id:'ev2',titulo:'Política Anticorrupción',texto:'Se entrega un extracto: "Ningún colaborador podrá solicitar, aceptar o recibir dinero, regalos, favores o beneficios que puedan influir o aparentar influir en sus decisiones o actuaciones laborales."'}]},
+'448':{titulo:'Informe Registrado por el Gestor',fecha:'15 de septiembre',texto:'Observaciones registradas por Andrés:\n"Durante la visita no se evidencian irregularidades en el sistema de medición. Las condiciones observadas son normales y no requieren acciones adicionales."\n\nPregunta para los participantes:\n¿Existe coherencia entre las fotografías y el informe?'},
+'449':{titulo:'Mensaje de WhatsApp del Cliente',fecha:'15 de septiembre',texto:'Se entrega la siguiente captura:\nCliente:\n"Muchas gracias por la ayuda. Menos mal pudimos solucionar el tema."\nAndrés:\n"Quedamos atentos."\n\nPregunta para los participantes:\n¿Qué interpretación le darían a esta conversación?\n¿Es suficiente para determinar una falta?'},
+'450':{titulo:'Declaración de un Compañero',fecha:'15 de septiembre',texto:'Un compañero manifiesta:\n\nPregunta para los participantes:\n¿Qué información nueva aporta este testimonio?'},
+'451':{titulo:'Política Anticorrupción',fecha:'15 de septiembre',texto:'Se entrega un extracto:\n"Ningún colaborador podrá solicitar, aceptar o recibir dinero, regalos, favores o beneficios que puedan influir o aparentar influir en sus decisiones o actuaciones laborales."\n\nPregunta para los participantes:\n¿Qué apartados consideran que podrían haberse incumplido?'}};
+const E=D['447'],CULPABLE='pierce';
+
+let S={inv:[],sus:[],evi:[],pis:[],pos:{},links:[],notes:'',dec:false,aut:[],int:[],for:[],vis:['447']},cur='447',modo='conectar',origen=null;
+try{Object.assign(S,JSON.parse(localStorage.getItem('rv447b')||'{}'))}catch{}
+const save=()=>{try{localStorage.setItem('rv447b',JSON.stringify(S))}catch{};prog()};
+const hud=()=>{$('#hud').textContent=$('#hud2').textContent=`Anomalías ${S.pis.length}/${P.length}`};
+function prog(){const p=Math.round((S.inv.length+S.sus.length+S.evi.length+S.pis.length+S.aut.length+S.int.length+S.for.length+(S.dec?1:0))/33*100);$('#pct').textContent=p+'%';$('#barra').style.width=p+'%';$('#ring').style.strokeDashoffset=94.25*(1-p/100);$('#ringT').textContent=p}
+function cuentas(){$$('.cuenta').forEach(e=>e.textContent=S[e.dataset.k].length+'/'+e.dataset.t);const L=$('#linea');if(L)L.innerHTML=linea();const Q=$('#ruta');if(Q)Q.innerHTML=ruta()}
+const datos='<div class="datos"><div><small>Gestor asignado</small><b>Andrés Ramírez</b></div><div><small>Cliente visitado</small><b>Comercializadora El Progreso</b></div><div><small>Consignación · toca</small><b data-n="300" data-p="$" data-s=".000">$300.000</b></div><div><small>Hora de inicio</small><b>10:15 a.m.</b></div></div>';
+const linea=()=>{const H=[[10,'10:15 a.m.','Hora de llegada',S.inv.includes('r3')],[27,'10:40 a.m.','Hora de cierre',S.sus.includes('velasco')],[72,'12:08 p.m.','Consignación: $300.000',true]].filter(h=>h[3]);
+  return(S.vis.includes('448')?'<i class="banda" style="left:10%;width:53%"></i>':'')+H.map((h,i)=>`<div class="hito${i%2?' alt':''}" style="left:${h[0]}%"><span><b>${h[1]}</b>${h[2]}</span></div>`).join('')};
+const RD={'Cliente':'Cliente visitado: Comercializadora El Progreso','Consignación':'Consignación: $300.000','15 de septiembre':'Fecha: 15 de septiembre','12:08 p.m.':'Hora: 12:08 p.m.','Gestor asignado':'Gestor asignado: Andrés Ramírez','Andrés Ramírez':'Observaciones registradas por Andrés:','Consignante':'El consignante corresponde al propietario del establecimiento visitado.','Propietario':'¿Qué hipótesis pueden formular?'};
+const ruta=()=>{const F={m:S.for.includes('ar'),r:S.evi.includes('ev2'),j:S.int.includes('ortega')};
+  const N=[[8,58,'Cliente',1,0],[190,58,'Consignación',1,0],[372,6,'15 de septiembre',F.m,0],[560,6,'12:08 p.m.',F.m,1],[372,58,'Gestor asignado',F.r,0],[560,58,'Andrés Ramírez',F.r,1],[372,110,'Consignante',F.j,0],[560,110,'Propietario',F.j,1]];
+  const L=[[118,75,190,75,'$300.000',1],[300,66,372,23,'',F.m],[482,23,560,23,'',F.m],[300,75,372,75,'',F.r],[482,75,560,75,'',F.r],[300,84,372,127,'',F.j],[482,127,560,127,'',F.j]];
+  return'<svg viewBox="0 0 680 150" role="img" aria-label="Ruta del dinero">'+L.map(l=>`<line x1="${l[0]}" y1="${l[1]}" x2="${l[2]}" y2="${l[3]}" class="fl${l[5]?'':' off'}"/>${l[4]&&l[5]?`<text x="${(l[0]+l[2])/2}" y="${(l[1]+l[3])/2-5}" text-anchor="middle">${l[4]}</text>`:''}`).join('')+N.map(n=>`<g class="nd${n[3]?'':' off'}${n[4]?' fin':''}" data-d="${n[3]?RD[n[2]]:''}"><rect x="${n[0]}" y="${n[1]}" width="110" height="34" rx="8"/><text x="${n[0]+55}" y="${n[1]+21}" text-anchor="middle">${n[3]?n[2]:'???'}</text></g>`).join('')+L.filter(l=>l[5]).map(l=>[0,.8,1.6].map(d=>`<rect class='bil' width='12' height='7' x='-6' y='-3.5' rx='1.5'><animateMotion dur='2.4s' begin='${d}s' repeatCount='indefinite' path='M${l[0]} ${l[1]} L${l[2]} ${l[3]}'/></rect>`).join('')).join('')+'</svg>'};
+const PL='"Ese día hablé con Andrés después de la visita y me comentó que el usuario estaba muy preocupado porque podía recibir una sanción."';
+const rot=(t,k)=>t.replace(/[A-Za-z]/g,c=>{const b=c<'a'?65:97;return String.fromCharCode((c.charCodeAt(0)-b-k+26)%26+b)});
+const TG=rot(PL,-3);
+const cifrado=()=>`<section class="cifra"><h3 style="margin:0;color:var(--brass)">Dial de descifrado</h3><pre id="tg">${S.dec?rot(TG,3):TG}</pre><label for="dial">Desplazamiento: <b id="k">${S.dec?3:0}</b></label><input id="dial" type="range" min="0" max="25" value="${S.dec?3:0}"><p id="tgm" class="${S.dec?'ok':''}">${S.dec?'Descifrado. Ya está en el corcho.':'Gira el dial hasta que aparezcan palabras con sentido.'}</p></section>`;
+
+/* Escena */
+const escena=$('#escena');
+P.forEach(([t,x,y],i)=>{const d=document.createElement('div');d.dataset.i=i;d.className='pista'+(S.pis.includes(i)?' ok':'');d.style.setProperty('--k',i);d.innerHTML=`<i>${i+1}</i><span>${t}</span>`;escena.append(d)});
+function colocar(){
+  const W=innerWidth,H=innerHeight,c=$('.cubierta');if(!c)return;
+  const cw=c.offsetWidth,ch=c.offsetHeight;
+  $$('.pista').forEach((d,i)=>{let x,y;
+    if(W<700){const arriba=i<2,n=arriba?2:3;x=W*((arriba?i:i-2)+1)/(n+1);y=arriba?(H/2-ch/2)/2:(H/2+ch/2+H)/2}
+    else{const a=[-145,-35,12,90,168][i]*Math.PI/180;x=W/2+Math.cos(a)*(cw/2+185);y=H/2+Math.sin(a)*(ch/2+95)}
+    d.style.left=Math.max(75,Math.min(W-75,x))+'px';d.style.top=Math.max(55,Math.min(H-55,y))+'px'})}
+colocar();addEventListener('resize',colocar);document.fonts?.ready.then(colocar);
+let mx=innerWidth/2,my=innerHeight*.4,lx=mx,ly=my,mi=0;
+escena.onpointermove=escena.onpointerdown=e=>{mx=e.clientX;my=e.clientY;const c=$('.cubierta');if(c)c.style.transform=`perspective(900px) rotateY(${(e.clientX/innerWidth-.5)*10}deg) rotateX(${(.5-e.clientY/innerHeight)*8}deg)`};
+const cv=$('#lluvia'),cx=cv.getContext('2d');
+const cols=[...Array(36)].map((_,i)=>({i,y:Math.random()*900,v:.5+Math.random()*1.2}));
+function escribe(t){clearInterval(mi);const e=$('#susurro');let k=0;mi=setInterval(()=>{e.textContent=t.slice(0,++k);if(k>=t.length)clearInterval(mi)},30)}
+function ciclo(t){
+  if(!escena.isConnected)return;
+  if(cv.width!==innerWidth){cv.width=innerWidth;cv.height=innerHeight}
+  cx.clearRect(0,0,cv.width,cv.height);
+  lx+=(mx-lx)*.14;ly+=(my-ly)*.14;
+  escena.style.setProperty('--x',lx+'px');escena.style.setProperty('--y',ly+'px');
+  escena.style.setProperty('--r',(210+Math.sin(t/400)*6)+'px');
+  cx.font='13px IBM Plex Mono,monospace';
+  cols.forEach(c=>{c.y+=c.v;if(c.y>cv.height+150)c.y=-20;const x=c.i*cv.width/36+8;for(let k=0;k<8;k++){cx.fillStyle=`rgba(56,189,248,${.55-k*.065})`;cx.fillText('0123456789$%'[(c.i*7+k+(c.y/18|0))%12],x,c.y-k*18)}});
+  escena.querySelectorAll('.pista:not(.ok)').forEach(d=>{const b=d.getBoundingClientRect();
+    if(Math.hypot(lx-b.x-b.width/2,ly-b.y-b.height/2)<140){const i=+d.dataset.i;d.classList.add('ok');S.pis.push(i);save();hud();escribe(P[i][3])}});
+  requestAnimationFrame(ciclo)}
+requestAnimationFrame(ciclo);
+$('#abrir').onclick=()=>{escena.remove();$('#app').classList.add('on');$('#luz').hidden=false;render(cur);board()};
+addEventListener('pointermove',e=>{const r=document.documentElement.style;r.setProperty('--lx',e.clientX+'px');r.setProperty('--ly',e.clientY+'px')});
+hud();prog();
+
+/* Expediente */
+const IC={'447':'M3 7h6l2 2h10v10H3z','448':'M3 5h18v14H3zM3 10h18M9 5v14','449':'M4 5h16v11H9l-5 4z','450':'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3','451':'M11 4a7 7 0 100 14 7 7 0 000-14zM16 16l5 5'};
+$('#tabs').innerHTML=Object.entries(D).map(([id,e],i)=>`<button class="tab" data-id="${id}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[id]}"/></svg><span>${e.titulo}</span><kbd>${i+1}</kbd></button>`).join('');
+$('#tabs').onclick=e=>{const b=e.target.closest('.tab');if(b)render(b.dataset.id)};
+
+const carta=(k,id,sello,head,rev)=>`<button class="carta" data-k="${k}" data-id="${id}" data-sello="${sello}" aria-pressed="${S[k].includes(id)}">${head}<span class="reveal">${esc(rev)}</span></button>`;
+
+function render(id){
+  cur=id;if(!S.vis.includes(id))S.vis.push(id);save();
+  const e=D[id];$('#exp').textContent='#'+id;$('#fecha').textContent=e.fecha;
+  $$('.tab').forEach(b=>{b.setAttribute('aria-current',b.dataset.id===id);b.classList.toggle('hecho',b.dataset.id!==id&&S.vis.includes(b.dataset.id))});
+  let h=`<h2>${esc(e.titulo)}</h2><p class="informe">${esc(e.texto)}</p>`;
+  if(id==='447'){
+    h+=datos+`<h3>Estado Bancario (Pista Clave)</h3><p class=\"nota\">¿Es una evidencia concluyente o requiere validación adicional?</p><div class=\"ruta\" id=\"ruta\"></div><p class=\"nota\" id=\"rutaInfo\" aria-live=\"polite\">Se encuentra durante la investigación un movimiento bancario:</p><h3>Registro GPS</h3><p class="nota">El sistema evidencia que Andrés permaneció en el establecimiento:</p><div id="linea" class="linea"></div><h3>Pistas<em class="cuenta" data-k="inv" data-t="6"></em></h3><p class="nota">Esto genera discusión, análisis y formulación de hipótesis, simulando una investigación real de cumplimiento y ética empresarial.</p><div class="rejilla">${
+      e.habitaciones.map((r,i)=>carta('inv','r'+i,'Inspeccionado',`<h4>${esc(r.nombre)}</h4>`,r.pista)).join('')}</div>
+    <h3>Sospechosos<em class="cuenta" data-k="sus" data-t="4"></em></h3><p class="nota">Entregue cada pista cada 3 a 5 minutos en grupos y no todas a la vez.</p><div class="rejilla">${
+      e.sospechosos.map(s=>carta('sus',s.id,'Entrevistado',`<div class="ini">${s.ini}</div><h4>${esc(s.nombre)}</h4><small>${esc(s.rol)}</small><small>${esc(s.coartada)}</small><small>${esc(s.motivo)}</small>`,s.secreto)).join('')}</div>
+    <h3>Evidencias<em class="cuenta" data-k="evi" data-t="4"></em></h3><p class="nota">Así los participantes descubren el hallazgo por sí mismos en lugar de recibir la respuesta desde el inicio. ${S.pis.map(i=>P[i][0]).join(' · ')}</p><div class="rejilla">${
+      e.evidencias.map(v=>carta('evi',v.id,'Analizada',`<h4>${esc(v.titulo)}</h4>`,v.texto)).join('')}</div>`;
+  }
+  if(id==='450')h+=cifrado();
+  if(id==='448')h+=autopsia();
+  if(id==='449')h+=interrog();
+  if(id==='451')h+=lab()+`<section class="acusa"><h3>Dictamen final</h3><p>¿Es fraude? Si lo es, ¿quién lo cometió?</p><select id="vered" aria-label="Veredicto"><option value="">— Veredicto —</option><option value="fraude">Fraude deliberado</option><option value="error">Error contable</option></select><br>
+    <select id="sosp" aria-label="Sospechoso"><option value="">— Responsable —</option>${E.sospechosos.map(s=>`<option value="${s.id}">${esc(s.nombre)}</option>`).join('')}</select><br>
+    <button class="abrir" id="acusar">Emitir dictamen</button><div id="res" role="status"></div>
+    <div class="confesion" id="conf" hidden><b>Hallazgo Esperado</b><br><br>Al unir todas las pistas, los participantes deberían concluir que:<br>✅ Existió un intento de soborno por parte del usuario.<br>✅ El colaborador omitió reportar la situación.<br>✅ El informe no refleja las condiciones reales encontradas en terreno.<br>✅ Existe una posible alteración documental para favorecer al cliente.<br>✅ Se vulneran los principios de transparencia, integridad y cumplimiento de la política anticorrupción.</div></section>`;
+  const m=$('#contenido');m.innerHTML=h;m.dataset.t=id;cuentas();contar();m.style.animation='none';m.offsetWidth;m.style.animation='';
+}
+$('#contenido').onclick=e=>{
+  const c=e.target.closest('.carta');
+  if(c){const a=S[c.dataset.k],i=a.indexOf(c.dataset.id);i<0?a.push(c.dataset.id):a.splice(i,1);c.setAttribute('aria-pressed',i<0);if(i<0)toast(c.querySelector('h4').textContent+' añadido al tablero');save();board();cuentas();return}
+  if(e.target.id==='acusar'){const v=$('#sosp').value,vd=$('#vered').value,r=$('#res'),ok=v===CULPABLE&&vd==='fraude';$('#conf').hidden=!ok;if(ok&&!$('#otra'))$('#res').insertAdjacentHTML('afterend','<button class="abrir" id="otra">Jugar de nuevo</button>');
+    if(ok&&!$('.cerrado')){lluvia(90,1);document.body.insertAdjacentHTML('beforeend','<div class="cerrado">CASO CERRADO</div>');setTimeout(()=>$('.cerrado')?.remove(),3500)}
+    r.className=ok?'ok':'mal';
+    r.textContent=!v||!vd?'Elige veredicto y responsable.':ok?'Correcto. Caso cerrado.':vd==='error'?'Incorrecto. Revisa las pistas.':'Es fraude, pero esa persona no es la responsable.'}
+};
+$('#contenido').oninput=e=>{if(e.target.id!=='dial')return;const k=+e.target.value,t=rot(TG,k);$('#k').textContent=k;$('#tg').textContent=t;
+  if(t===PL&&!S.dec){S.dec=true;save();board();const m=$('#tgm');toast('Mensaje descifrado: nuevo nodo en el tablero');m.className='ok';m.textContent='Descifrado. Ya está en el corcho.'}};
+$('#reset').onclick=()=>$('#dlg').showModal();
+$('#notas').value=S.notes;$('#notas').oninput=e=>{S.notes=e.target.value;save()};
+
+/* Auditoría */
+const AUT=[['pv',86,18,'Foto 1','Medidor con sellos aparentemente manipulados.'],['im',86,31,'Foto 2','Empalme adicional conectado antes del medidor.'],['fe',86,44,'Foto 3','Vista general del local con equipos de alto consumo energético.'],['ap',86,57,'Pregunta para los participantes:','¿Qué hallazgos técnicos evidencian las fotografías?'],['to',86,95,'Pregunta para los participantes:','¿Deberían aparecer estos hallazgos en el reporte?']];
+const hall=()=>AUT.filter(a=>S.aut.includes(a[0])).map(a=>`<div><b>${a[3]}</b>${a[4]}</div>`).join('')||'<p class="nota">Se entregan tres fotografías:</p>';
+const libro=()=>{const N=[['Orden de servicio','N.° 45871'],['Fecha','15 de septiembre'],['Gestor asignado','Andrés Ramírez'],['Cliente visitado',''],['Comercializadora El Progreso',''],['Motivo',''],['Verificación de anomalías en medición.',''],['Hora de inicio','10:15 a.m.'],['Hora de cierre','10:40 a.m.'],['Hora de llegada','10:15 a.m.'],['Hora de salida','11:35 a.m.'],['Consignación','$300.000'],['Fecha','15 de septiembre'],['Hora','12:08 p.m.']],H=[8,10,11];
+  return`<rect width="200" height="24" fill="#1e3a8a"/><text x="8" y="16" fill="#e8f0e0" font-size="9" font-family="monospace">Orden de Trabajo</text>`+N.map((n,i)=>{const y=34+i*26,x=H.includes(i);return`<line x1="0" x2="200" y1="${y+22}" y2="${y+22}" stroke="#cbd5e1" stroke-width=".6"/><text x="8" y="${y+14}" font-size="8" font-family="monospace" fill="#0f1b2d">${n[0]}</text><text x="192" y="${y+14}" text-anchor="end" font-size="8" font-family="monospace" font-weight="${x?700:400}" fill="${x?'#d92d3a':'#0f1b2d'}">${n[1]}</text>`}).join('')};
+const PAG=[['Pista 3','¿Existe coherencia entre las fotografías y el informe?'],['Pista 4','¿Qué interpretación le darían a esta conversación? ¿Es suficiente para determinar una falta?'],['Pista 5','¿Qué información nueva aporta este testimonio?'],['Pista 6','¿Por qué existe una diferencia de casi una hora?'],['Pista 7','¿Qué hipótesis pueden formular? ¿Es una evidencia concluyente o requiere validación adicional?'],['Pista 8','¿Qué apartados consideran que podrían haberse incumplido?']];
+const fajo=()=>`<h3>Pregunta para los participantes:</h3><p class="nota">Toca un billete para girarlo.</p><div class="fajo">${PAG.map((p,i)=>`<button class="bill" style="--i:${i}" aria-label="${p[0]}"><span class="in"><span class="fr"><i class="ov"></i><b>${p[0]}</b><em>N.° 45871</em><small>Orden de servicio</small><u>15 de septiembre</u></span><span class="rv"><b>Pregunta para los participantes:</b><br>${p[1]}</span></span></button>`).join('')}</div>`;
+const umbral=()=>`<h3>Consignación: $300.000</h3><p class="nota">Se encuentra durante la investigación un movimiento bancario:</p><div class="umbral" id="umbral"><label for="umb">Consignación: <b id="um">9,9</b> M</label><input type="range" id="umb" min="1" max="15" step="0.1" value="9.9"><div class="medidor"><i id="umbi" style="width:66%"></i><span>$10 M</span></div><p id="umt">¿Es suficiente para determinar una falta?</p></div>`;
+const autopsia=()=>`<div class="aut"><div class="camilla"><div class="cw"><svg viewBox="0 0 200 400" aria-hidden="true">${libro()}</svg>${AUT.map(a=>`<button class="punto" data-a="${a[0]}" aria-label="${a[3]}" aria-pressed="${S.aut.includes(a[0])}" style="left:${a[1]}%;top:${a[2]}%"></button>`).join('')}</div></div>
+<div><span class="tag">Orden de servicio N.° 45871</span><h3>Registro Fotográfico<em class="cuenta" data-k="aut" data-t="5"></em></h3><div class="hall" id="hall">${hall()}</div>
+<table class="tabla"><tr><td>Hora de inicio</td><td>10:15 a.m.</td></tr><tr><td>Hora de cierre</td><td>10:40 a.m.</td></tr><tr><td>Motivo</td><td>Verificación de anomalías en medición.</td></tr></table></div></div>${fajo()}${umbral()}`;
+
+/* Interrogatorio */
+const INT={
+velasco:{n:'Cliente',l:[['D','Se entrega la siguiente captura:'],['S','"Muchas gracias por la ayuda. Menos mal pudimos solucionar el tema."',1],['D','¿Qué interpretación le darían a esta conversación?']],c:['D','¿Es suficiente para determinar una falta?',1]},
+ortega:{n:'Propietario',l:[['D','Se encuentra durante la investigación un movimiento bancario:'],['S','Consignación: $300.000',1],['S','Fecha: 15 de septiembre'],['S','Hora: 12:08 p.m.'],['D','¿Qué hipótesis pueden formular?']],c:['D','¿Es una evidencia concluyente o requiere validación adicional?',1]},
+pierce:{n:'Andrés',l:[['D','Observaciones registradas por Andrés:'],['S','"Durante la visita no se evidencian irregularidades en el sistema de medición. Las condiciones observadas son normales y no requieren acciones adicionales."',1],['D','¿Existe coherencia entre las fotografías y el informe?'],['S','"Quedamos atentos."']],c:['D','¿Por qué existe una diferencia de casi una hora?',1]},
+thompson:{n:'Compañero',l:[['D','Un compañero manifiesta:'],['D','¿Qué información nueva aporta este testimonio?']],c:['D','¿Qué apartados consideran que podrían haberse incumplido?',1]}};
+let sel=null,nerv=.15,tok=0,iv=0;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const fichas=()=>E.sospechosos.map(x=>`<button class="fs${S.int.includes(x.id)?' roto':''}" data-s="${x.id}" aria-pressed="${sel===x.id}"><span class="ini">${x.ini}</span><span>${esc(x.nombre)}</span></button>`).join('');
+const sobre=()=>S.int.length>=2?'<details class="sobre"><summary>Política Anticorrupción</summary><p>Se entrega un extracto: "Ningún colaborador podrá solicitar, aceptar o recibir dinero, regalos, favores o beneficios que puedan influir o aparentar influir en sus decisiones o actuaciones laborales."</p></details>':'';
+const interrog=()=>{clearInterval(iv);sel=null;nerv=.15;const pg=Array(90).fill(30);
+  iv=setInterval(()=>{const e=$('#pol');if(!e){clearInterval(iv);return}pg.push(30+Math.sin(Date.now()/150)*7*nerv+(Math.random()-.5)*50*nerv);pg.shift();nerv=Math.max(.12,nerv-.006);e.setAttribute('points',pg.map((y,i)=>i*4+','+y.toFixed(1)).join(' '));$('#nv').style.width=Math.min(100,nerv*100)+'%'},70);
+  return`<div class="sala"><div class="lampara"></div><div class="espejo"></div><div class="grab"><b class="rec">● REC</b><i class="rueda"></i><i class="rueda"></i><span>Sala 3 · Grabación 449</span></div>
+  <div class="sin"><h3>Sala de entrevistas<em class="cuenta" data-k="int" data-t="4"></em></h3><div class="fichas" id="fichas">${fichas()}</div>
+  <div class="mon"><svg viewBox="0 0 360 60" preserveAspectRatio="none"><polyline id="pol" fill="none" stroke="#38bdf8" stroke-width="2"/></svg><div class="nvw">Nivel de estrés<span><i id="nv"></i></span></div></div>
+  <div id="cinta" aria-live="polite"><p class="l sis">Pregunta para los participantes:</p></div>
+  <button class="abrir" id="presionar">Presionar</button><div id="sobre">${sobre()}</div></div></div>`};
+async function play(id,x){
+  const T=++tok,C=$('#cinta');
+  if(x)C.dataset.c=id;else{C.innerHTML='';delete C.dataset.c;nerv=.15}
+  for(const l of x?[INT[id].c]:INT[id].l){
+    if(T!==tok)return;
+    const p=document.createElement('p');p.className='l '+(l[0]==='D'?'d':'s');p.innerHTML=`<b>${l[0]==='D'?'Detective':INT[id].n}:</b> <span></span>`;C.append(p);
+    for(const ch of l[1]){if(T!==tok)return;p.lastChild.textContent+=ch;await sleep(l[0]==='D'?12:20)}
+    if(l[2]){nerv=1;p.classList.add('mentira')}
+    C.scrollTop=C.scrollHeight;await sleep(500)}}
+
+/* Laboratorio */
+const MU=[{id:'bo',t:'Registro GPS',r:'El sistema evidencia que Andrés permaneció en el establecimiento: Hora de llegada: 10:15 a.m. Hora de salida: 11:35 a.m. Sin embargo, el informe indica una duración de 25 minutos.',p:[]},{id:'ta',t:'Orden de Trabajo',r:'Hora de inicio: 10:15 a.m. Hora de cierre: 10:40 a.m.',p:[]},{id:'ar',t:'Estado Bancario (Pista Clave)',r:'Consignación: $300.000 Fecha: 15 de septiembre Hora: 12:08 p.m.',p:[]},{id:'sa',t:'Política Anticorrupción',r:'"Ningún colaborador podrá solicitar, aceptar o recibir dinero, regalos, favores o beneficios que puedan influir o aparentar influir en sus decisiones o actuaciones laborales."',p:[]}];
+const muHTML=m=>{const ok=S.for.includes(m.id);return`<div class="mu" data-m="${m.id}"><div class="vis i-${m.id}"></div><h4>${m.t}</h4>${ok?`<p class="r">${m.r}</p>`+m.p.map(p=>`<small><span>${p[0]}</span><b>${p[1]}%</b></small><div class="bar"><i style="width:${p[1]}%"></i></div>`).join(''):'<button>Analizar muestra</button>'}</div>`};
+const conclu=()=>S.for.length>=4?'<div class="concl"><b>Pregunta para los participantes:</b><div class="tri"><div><small>Pista 7</small>¿Qué hipótesis pueden formular?</div><div><small>Pista 7</small>¿Es una evidencia concluyente o requiere validación adicional?</div><div><small>Pista 8</small>¿Qué apartados consideran que podrían haberse incumplido?</div></div></div>':'';
+const lab=()=>`<h3>Pregunta para los participantes:<em class="cuenta" data-k="for" data-t="4"></em></h3><p class="nota">¿Por qué existe una diferencia de casi una hora?</p><div class="lab">${MU.map(muHTML).join('')}</div><div id="concl">${conclu()}</div>`;
+function analizar(el){if(el.classList.contains('scan'))return;el.classList.add('scan');
+  setTimeout(()=>{const m=MU.find(x=>x.id===el.dataset.m);if(!S.for.includes(m.id)){S.for.push(m.id);save()}el.outerHTML=muHTML(m);toast('Análisis completado: '+m.t);if(m.id==='ar')lluvia(40);$('#concl').innerHTML=conclu();cuentas()},1200)}
+$('#contenido').addEventListener('click',e=>{
+  const q=k=>e.target.closest(k);let b;
+  if(b=q('.punto')){const i=b.dataset.a;if(!S.aut.includes(i)){S.aut.push(i);save()}b.setAttribute('aria-pressed',true);$('#hall').innerHTML=hall();cuentas();toast('Hallazgo registrado')}
+  else if(b=q('.fs')){sel=b.dataset.s;$$('.fs').forEach(x=>x.setAttribute('aria-pressed',x===b));play(sel)}
+  else if(q('#presionar')){
+    if(!sel)return;
+    if(sel==='pierce'&&!S.dec){$('#cinta').insertAdjacentHTML('beforeend','<p class="l sis">Andrés: "Quedamos atentos."</p>');nerv=.5;return}
+    if($('#cinta').dataset.c===sel)return;
+    if(!S.int.includes(sel)){S.int.push(sel);save()}
+    $('#fichas').innerHTML=fichas();$('#sobre').innerHTML=sobre();cuentas();toast('Nueva declaración registrada');play(sel,1)}
+  else if(b=q('.mu button'))analizar(b.closest('.mu'));
+});
+
+
+/* Corcho */
+const items=()=>[
+  ...S.inv.map(k=>[k,'lug',E.habitaciones[+k.slice(1)].nombre]),
+  ...S.sus.map(k=>[k,'sus',E.sospechosos.find(s=>s.id===k).nombre]),
+  ...S.evi.map(k=>[k,'evi',E.evidencias.find(v=>v.id===k).titulo]),
+  ...(S.dec?[['tg','evi','Declaración de un Compañero']]:[])];
+
+function board(){
+  const a=$('#area');a.querySelectorAll('.nodo').forEach(n=>n.remove());
+  const it=items();$('#vacio').hidden=it.length>0;
+  it.forEach(([id,t,txt],i)=>{
+    const n=document.createElement('div');n.className='nodo t-'+t;n.id='n_'+id;n.textContent=txt;
+    const p=S.pos[id]||(S.pos[id]={x:14+(i%3)*118,y:24+Math.floor(i/3)*84});
+    n.style.left=p.x+'px';n.style.top=p.y+'px';
+    n.onpointerdown=e=>{
+      e.preventDefault();if(modo==='conectar')return enlazar(id);
+      n.setPointerCapture(e.pointerId);
+      const r=a.getBoundingClientRect(),dx=e.clientX-r.left-p.x,dy=e.clientY-r.top-p.y;
+      n.onpointermove=m=>{
+        p.x=Math.max(0,Math.min(a.clientWidth-n.offsetWidth,m.clientX-r.left-dx));
+        p.y=Math.max(0,Math.min(a.clientHeight-n.offsetHeight,m.clientY-r.top-dy));
+        n.style.left=p.x+'px';n.style.top=p.y+'px';hilos()};
+      n.onpointerup=()=>{n.onpointermove=n.onpointerup=null;save()}};
+    a.append(n)});
+  hilos();
+}
+function enlazar(id){
+  $$('.nodo.sel').forEach(n=>n.classList.remove('sel'));
+  if(!origen){origen=id;$('#n_'+id).classList.add('sel');return}
+  if(origen!==id&&!S.links.some(l=>l.includes(origen)&&l.includes(id)))S.links.push([origen,id]);
+  origen=null;save();hilos();
+}
+function hilos(){
+  $('#hilos').innerHTML=S.links.map(([a,b],i)=>{
+    const A=$('#n_'+a),B=$('#n_'+b);if(!A||!B)return'';
+    const x1=A.offsetLeft+A.offsetWidth/2,y1=A.offsetTop+5,x2=B.offsetLeft+B.offsetWidth/2,y2=B.offsetTop+5,sag=Math.min(60,Math.hypot(x2-x1,y2-y1)/5);
+    return`<path data-i="${i}" d="M${x1} ${y1}Q${(x1+x2)/2} ${(y1+y2)/2+sag} ${x2} ${y2}"><title>Doble clic para cortar el hilo</title></path>`}).join('');
+  $('#conteo').textContent=$('#chHil').textContent=S.links.length+' hilos';
+}
+$('#hilos').ondblclick=e=>{const p=e.target.closest('path');if(p){S.links.splice(+p.dataset.i,1);save();hilos()}};
+$('.barra-c').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.m){modo=b.dataset.m;origen=null;$$('[data-m]').forEach(x=>x.setAttribute('aria-pressed',x===b));$$('.nodo.sel').forEach(n=>n.classList.remove('sel'))}
+  if(b.id==='limpiar'){S.links=[];save();hilos()}};
+addEventListener('resize',hilos);
+
+/* Interacción extra */
+function toast(m){let t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';t.setAttribute('role','status');document.body.append(t)}t.textContent=m;t.classList.remove('v');t.offsetWidth;t.classList.add('v')}
+function contar(){$$('[data-n]').forEach(e=>{const n=+e.dataset.n,d=+(e.dataset.d||0);let t0;const f=t=>{t0??=t;const p=Math.min(1,(t-t0)/900);e.textContent=(e.dataset.p||'')+(n*(1-(1-p)**3)).toFixed(d).replace('.',',')+(e.dataset.s||'');if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)})}
+document.addEventListener('pointermove',e=>{const c=e.target.closest('.carta,.datos div,.tri div');if(c){const r=c.getBoundingClientRect();c.style.setProperty('--mx',e.clientX-r.left+'px');c.style.setProperty('--my',e.clientY-r.top+'px')}});
+$('#contenido').addEventListener('click',e=>{const g=e.target.closest('.nd');if(g&&g.dataset.d)$('#rutaInfo').textContent=g.dataset.d});
+$('#tema').onclick=()=>{const h=document.documentElement,o=h.dataset.tema==='oscuro';o?delete h.dataset.tema:h.dataset.tema='oscuro';$('#tema').textContent=o?'Modo oscuro':'Modo claro'};
+addEventListener('keydown',e=>{if(!$('#app').classList.contains('on')||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;const k=Object.keys(D)[+e.key-1];if(k)render(k)});
+
+function lluvia(n=70,sube=0){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const c=document.createElement('canvas');c.className='lluvia-b';c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+  const g=c.getContext('2d'),B=[...Array(n)].map(()=>({x:Math.random()*c.width,y:sube?c.height+40+Math.random()*250:-40-Math.random()*450,vy:(1.5+Math.random()*3)*(sube?-1:1),vx:(Math.random()-.5)*1.4,r:Math.random()*6,vr:(Math.random()-.5)*.08,s:.8+Math.random()*.7,v:Math.random()<.7}));
+  let t0;const f=t=>{t0??=t;g.clearRect(0,0,c.width,c.height);
+    B.forEach(b=>{b.x+=b.vx+Math.sin(b.y/40)*.6;b.y+=b.vy;b.r+=b.vr;g.save();g.translate(b.x,b.y);g.rotate(b.r);g.scale(b.s,b.s);
+      g.fillStyle=b.v?'#1f9d63':'#2f6bff';g.beginPath();g.roundRect(-24,-11,48,22,3);g.fill();
+      g.strokeStyle='#ffffffaa';g.lineWidth=1.5;g.strokeRect(-20,-8,40,16);g.beginPath();g.arc(0,0,6,0,6.3);g.stroke();
+      g.fillStyle='#fff';g.font='700 9px monospace';g.textAlign='center';g.textBaseline='middle';g.fillText('$',0,.5);g.restore()});
+    t-t0<4200?requestAnimationFrame(f):c.remove()};
+  requestAnimationFrame(f)}
+$('#contenido').addEventListener('click',e=>{
+  if(e.target.closest('.datos div:nth-child(3)'))lluvia(60);
+  const b=e.target.closest('.bill');if(b)b.classList.toggle('on')});
+$('#contenido').addEventListener('input',e=>{if(e.target.id!=='umb')return;
+  const v=+e.target.value;$('#um').textContent=String(v).replace('.',',');$('#umbi').style.width=v/15*100+'%';
+  $('#umbral').classList.toggle('alto',v>=10);
+  $('#umt').textContent=v>=10?'¿Es una evidencia concluyente o requiere validación adicional?':'¿Es suficiente para determinar una falta?'});
+
+const reiniciar=()=>{try{localStorage.removeItem('rv447b')}catch{}location.reload()};
+$('#reiniciar').onclick=()=>$('#dlg').showModal();
+$('#no').onclick=()=>$('#dlg').close();$('#si').onclick=reiniciar;
+$('#contenido').addEventListener('click',e=>{if(e.target.id==='otra')reiniciar()});
+</script>
+</body>
+</html>
