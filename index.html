@@ -412,7 +412,7 @@ $('#contenido').onclick=e=>{
   if(e.target.id==='acusar'){const v=$('#sosp').value,vd=$('#vered').value,r=$('#res'),ok=v===CULPABLE&&vd==='fraude';$('#conf').hidden=!ok;if(ok&&!$('#otra'))$('#res').insertAdjacentHTML('afterend','<button class="abrir" id="otra">Jugar de nuevo</button>');
     if(ok&&!$('.cerrado')){lluvia(90,1);document.body.insertAdjacentHTML('beforeend','<div class="cerrado">CASO CERRADO</div>');setTimeout(()=>$('.cerrado')?.remove(),3500)}
     r.className=ok?'ok':'mal';
-    r.textContent=!v||!vd?'Elige veredicto y responsable.':ok?'Correcto. Caso cerrado.':vd==='error'?'Incorrecto. Revisa las pistas.':'Es fraude, pero esa persona no es la responsable.'}
+    r.textContent=!v||!vd?'Elige veredicto y responsable.':ok?'¡Felicitaciones! Tu capacidad para identificar posibles actos de corrupción demuestra tu compromiso con la ética y la transparencia.':vd==='error'?'Incorrecto. Revisa las pistas.':'Es fraude, pero esa persona no es la responsable.'}
 };
 $('#contenido').oninput=e=>{if(e.target.id!=='dial')return;const k=+e.target.value,t=rot(TG,k);$('#k').textContent=k;$('#tg').textContent=t;
   if(t===PL&&!S.dec){S.dec=true;save();board();const m=$('#tgm');toast('Mensaje descifrado: nuevo nodo en el tablero');m.className='ok';m.textContent='Descifrado. Ya está en el corcho.'}};
